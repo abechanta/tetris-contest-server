@@ -1,0 +1,14 @@
+RegisterProgram:
+・localhost 以外のホストからの報告を受け付けるようにする
+
+QueryStats:
+・過去の試合結果を表示できるようにする
+・試合結果を onmousemove に対応させる（それぞれの試合結果を表示するようにする）
+・tetcon.View を分離してから、グラフが表示されなくなった？
+
+全体:
+・パッケージを war ファイルにまとめる
+・認証エラーした RecordResult を格納しておくためのテーブル tetcon.log を追加定義する
+・rank_recent500 を追加する＆member_stats にランキングを追加する？
+・createTable.sql の外部制約を見直す
+・Chrome だと、JavaScript が意図どおりに動作してない？

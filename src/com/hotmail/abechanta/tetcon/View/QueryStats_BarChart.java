@@ -1,0 +1,87 @@
+package com.hotmail.abechanta.tetcon.View;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.hotmail.abechanta.tetcon.DbAccess;
+import com.hotmail.abechanta.tetcon.DbHttpServlet;
+import com.hotmail.abechanta.tetcon.Model.ScoreForStats;
+
+/**
+ * Servlet implementation class QueryStats_BarChart
+ */
+@WebServlet("/QueryStats_BarChart")
+public class QueryStats_BarChart extends DbHttpServlet {
+	private static final long serialVersionUID = 1L;
+	private static final String encoding = "utf-8";
+	private static final String fwdUrl = "barchart.jsp";
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//
+		// UI パラメータを取得する。
+		//
+		request.setCharacterEncoding(encoding);
+		String category0 = getString(request, "category0", "");
+		Integer mid0 = getInteger(request, "mid0", 0);
+		Integer ruleid0 = getInteger(request, "ruleid0", 0);
+		String date0 = getString(request, "date0", "");
+		String date1 = getString(request, "date1", "");
+
+		String date0tmp = date0.equals("") ? "000000" : date0;
+		date0tmp += "000000";
+		String date1tmp = date1.equals("") ? "999999" : date1;
+		date1tmp += "999999";
+
+		Vector<Integer> outArray = null;
+
+		//
+		// コンテンツを準備する。
+		//
+		Connection conn = null;
+		try {
+			conn = DbAccess.getConn(false);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw new ServletException(ex.getMessage());
+		}
+
+		Hashtable<String, Integer> stats = null;
+		try {
+			stats = ScoreForStats.queryStats(conn, mid0, ruleid0, date0tmp, date1tmp, category0);
+			if (stats != null) {
+				outArray = new Vector<Integer>();
+				outArray.add(stats.get("sumL1"));
+				outArray.add(stats.get("sumL2"));
+				outArray.add(stats.get("sumL3"));
+				outArray.add(stats.get("sumL4"));
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw new ServletException(ex.getMessage());
+		}
+
+		//
+		// リクエストにコンテンツを添付する。
+		//
+		request.setAttribute("bean1", outArray);
+
+		//
+		// リクエストを JSP に転送する。
+		//
+		RequestDispatcher dispatch = request.getRequestDispatcher(fwdUrl);
+		dispatch.forward(request, response);
+	}
+
+}
